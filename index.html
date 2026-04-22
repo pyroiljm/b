@@ -848,13 +848,16 @@ if(__exports != exports)module.exports = exports;return module.exports}));
 
         /* ========== Landing chips ========== */
         .landing-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
         }
 
         .landing-chip {
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 52px;
             padding: 10px 14px;
             border-radius: 10px;
             background: white;
@@ -863,6 +866,7 @@ if(__exports != exports)module.exports = exports;return module.exports}));
             text-decoration: none !important;
             font-size: 13px;
             line-height: 1.3;
+            text-align: center;
             transition: all 0.15s ease;
             box-shadow: 0 1px 2px var(--shadow-light);
         }
@@ -876,12 +880,19 @@ if(__exports != exports)module.exports = exports;return module.exports}));
         .oncall-chip:hover {
             background: var(--accent-orange) !important;
             color: white !important;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(217,119,6,0.25);
         }
 
         .landing-chip:hover {
             border-color: var(--accent-orange);
             color: var(--accent-orange) !important;
             opacity: 1 !important;
+        }
+
+        @media (max-width: 768px) {
+            .landing-chips { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .landing-chip { min-height: 48px; font-size: 13px; }
         }
 
         /* ========== Sidebar count badges ========== */
@@ -1597,9 +1608,18 @@ if(__exports != exports)module.exports = exports;return module.exports}));
 
                 const totalEntries = this.data.categories.reduce((sum, c) => sum + c.entries.length, 0);
                 const onCallSlugs = ['oncall-acls','oncall-chest-pain','oncall-hypotension','hypertensive-crisis','oncall-desaturation','arrhythmias-quick-ref','oncall-dka-hhs','oncall-gcs-drop','oncall-hb-drop','oncall-electrolyte-derangement','oncall-fever'];
+                const onCallLabelOverride = {
+                    'hypertensive-crisis': 'Hypertensive Crisis',
+                    'arrhythmias-quick-ref': 'Arrhythmias',
+                    'oncall-electrolyte-derangement': 'Electrolytes',
+                    'oncall-hb-drop': 'Haemoglobin Drop',
+                    'oncall-gcs-drop': 'GCS Drop',
+                };
                 const onCallList = onCallSlugs.map(slug => {
                     const entry = this.findEntryBySlug(slug);
-                    return entry ? `<a class="landing-chip oncall-chip" href="#${slug}" onclick="event.preventDefault(); app.loadEntry('${slug}');">${this.escapeHtml(entry.title.replace(' (quick ref)',''))}</a>` : '';
+                    if (!entry) return '';
+                    const label = onCallLabelOverride[slug] || entry.title.replace(' (quick ref)','');
+                    return `<a class="landing-chip oncall-chip" href="#${slug}" onclick="event.preventDefault(); app.loadEntry('${slug}');">${this.escapeHtml(label)}</a>`;
                 }).filter(Boolean).join('');
                 const enhancedSlugs = Object.keys(ENHANCEMENTS);
                 const enhancedList = enhancedSlugs.map(slug => {
@@ -1612,7 +1632,7 @@ if(__exports != exports)module.exports = exports;return module.exports}));
                     <div class="content-pane landing">
                         <h1>${this.escapeHtml(this.data.title)}</h1>
                         ${onCallList ? `
-                            <div style="text-align: left; max-width: 640px; margin: 0 auto 32px;">
+                            <div style="text-align: left; max-width: 880px; margin: 0 auto 32px;">
                                 <div class="tldr-label" style="color: var(--accent-orange); margin-bottom: 12px;">On-Call Quick Reference</div>
                                 <div class="landing-chips">${onCallList}</div>
                             </div>
